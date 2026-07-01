@@ -11,6 +11,8 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+const name = "sort"
+
 const (
 	flagReverse             = "reverse"
 	flagNumeric             = "numeric-sort"
@@ -50,7 +52,7 @@ func run(version string, args []string, stdin io.Reader, stdout, stderr io.Write
 	cmd.Writer = stdout
 	cmd.ErrWriter = stderr
 	if err := cmd.Run(context.Background(), args); err != nil {
-		_, _ = fmt.Fprintf(stderr, "sort: %v\n", err)
+		_, _ = fmt.Fprintf(stderr, name+": %v\n", err)
 		return 1
 	}
 	return 0
@@ -58,7 +60,7 @@ func run(version string, args []string, stdin io.Reader, stdout, stderr io.Write
 
 func newCommand(version string, stdin io.Reader, stdout io.Writer, fs afero.Fs) *cli.Command {
 	return &cli.Command{
-		Name:            "sort",
+		Name:            name,
 		Version:         version,
 		Usage:           "sort lines of text files",
 		UsageText:       usageText,
@@ -124,22 +126,22 @@ func source(c *cli.Command, stdin io.Reader, fs afero.Fs) any {
 
 // flagOption pairs a boolean CLI flag name with the library option it enables.
 type flagOption struct {
-	name   string
 	option any
+	name   string
 }
 
 func flagOptions() []flagOption {
 	return []flagOption{
-		{flagReverse, command.SortReverse},
-		{flagNumeric, command.SortNumeric},
-		{flagHumanNumeric, command.SortHumanNumeric},
-		{flagMonth, command.SortMonthSort},
-		{flagVersion, command.SortVersionSort},
-		{flagUnique, command.SortUnique},
-		{flagIgnoreCase, command.SortIgnoreCase},
-		{flagIgnoreLeadingBlanks, command.SortIgnoreLeadingBlanks},
-		{flagRandom, command.SortRandom},
-		{flagStableSort, command.SortStableSort},
+		{name: flagReverse, option: command.SortReverse},
+		{name: flagNumeric, option: command.SortNumeric},
+		{name: flagHumanNumeric, option: command.SortHumanNumeric},
+		{name: flagMonth, option: command.SortMonthSort},
+		{name: flagVersion, option: command.SortVersionSort},
+		{name: flagUnique, option: command.SortUnique},
+		{name: flagIgnoreCase, option: command.SortIgnoreCase},
+		{name: flagIgnoreLeadingBlanks, option: command.SortIgnoreLeadingBlanks},
+		{name: flagRandom, option: command.SortRandom},
+		{name: flagStableSort, option: command.SortStableSort},
 	}
 }
 
