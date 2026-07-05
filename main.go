@@ -13,6 +13,7 @@ var version = "dev"
 
 const (
 	name                    = "sort"
+	flagHelp                = "help"
 	flagReverse             = "reverse"
 	flagNumeric             = "numeric-sort"
 	flagHumanNumeric        = "human-numeric-sort"
@@ -34,10 +35,12 @@ const synopsis = `sort [OPTIONS] [FILE...]
 Write sorted concatenation of all FILE(s) to standard output.
 With no FILE, or when FILE is -, read standard input.`
 
-// init drops urfave/cli's default -h help alias so -h is free for
-// --human-numeric-sort, matching GNU sort; --help still shows help.
-func init() {
-	urf.HelpFlag = &urf.BoolFlag{Name: "help", Usage: "show help"}
+// configureHelp drops urfave/cli's default -h help alias so -h is free for
+// --human-numeric-sort, matching GNU sort; --help still shows help. It is
+// called explicitly from main (mirroring how the clix runner replaces
+// urf.VersionFlag at app construction) rather than hidden in an init.
+func configureHelp() {
+	urf.HelpFlag = &urf.BoolFlag{Name: flagHelp, Usage: "show help"}
 }
 
 // spec declares the sort wrapper: a file-or-stdin filter with GNU sort's flags.
@@ -134,4 +137,7 @@ func options(c *urf.Command) []any {
 // the process; a test swaps it and restores it.
 var runMain = clix.Main
 
-func main() { runMain(spec, version) }
+func main() {
+	configureHelp()
+	runMain(spec, version)
+}

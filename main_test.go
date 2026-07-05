@@ -2,12 +2,21 @@ package main
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	clix "github.com/gloo-foo/cli"
 	"github.com/spf13/afero"
 	urf "github.com/urfave/cli/v3"
 )
+
+// TestMain applies the wrapper's explicit help-flag configuration before the
+// tests run, exactly as main does, so parse-driven tests see -h freed for
+// --human-numeric-sort.
+func TestMain(m *testing.M) {
+	configureHelp()
+	os.Exit(m.Run())
+}
 
 // parse runs args through a bare command carrying the wrapper's flags and
 // returns the parsed accessor, so flag-dependent helpers are tested against real
@@ -57,13 +66,40 @@ func TestBuild(t *testing.T) {
 	}
 }
 
+// TestConfigureHelp asserts the contract: after configureHelp, urfave/cli's
+// global help flag is --help with no -h alias, so -h stays free for
+// --human-numeric-sort (matching GNU sort).
+func TestConfigureHelp(t *testing.T) {
+	orig := urf.HelpFlag
+	t.Cleanup(func() { urf.HelpFlag = orig })
+	urf.HelpFlag = &urf.BoolFlag{Name: flagHelp, Aliases: []string{"h"}}
+	configureHelp()
+	assertHelpFlagFreesH(t)
+}
+
+// assertHelpFlagFreesH fails unless the global help flag is --help with no
+// aliases.
+func assertHelpFlagFreesH(t *testing.T) {
+	t.Helper()
+	hf, ok := urf.HelpFlag.(*urf.BoolFlag)
+	if !ok {
+		t.Fatalf("HelpFlag=%T, want *urf.BoolFlag", urf.HelpFlag)
+	}
+	if hf.Name != flagHelp || len(hf.Aliases) != 0 {
+		t.Fatalf("HelpFlag name=%q aliases=%v, want name %q with no aliases", hf.Name, hf.Aliases, flagHelp)
+	}
+}
+
 func Test_main(t *testing.T) {
-	orig := runMain
-	t.Cleanup(func() { runMain = orig })
+	origRun := runMain
+	origHelp := urf.HelpFlag
+	t.Cleanup(func() { runMain = origRun; urf.HelpFlag = origHelp })
+	urf.HelpFlag = &urf.BoolFlag{Name: flagHelp, Aliases: []string{"h"}}
 	var gotName clix.Name
 	runMain = func(s clix.Spec, _ clix.Version) { gotName = s.Name }
 	main()
 	if gotName != name {
 		t.Fatalf("main used spec %q, want %s", gotName, name)
 	}
+	assertHelpFlagFreesH(t)
 }
