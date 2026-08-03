@@ -40,7 +40,7 @@ With no FILE, or when FILE is -, read standard input.`
 // called explicitly from main (mirroring how the clix runner replaces
 // urf.VersionFlag at app construction) rather than hidden in an init.
 func configureHelp() {
-	urf.HelpFlag = &urf.BoolFlag{Name: flagHelp, Usage: "show help"}
+	urf.HelpFlag = &urf.BoolFlag{Name: flagHelp, Usage: "show help", Sources: urf.EnvVars("YUP_SORT_HELP")}
 }
 
 // spec declares the sort wrapper: a file-or-stdin filter with GNU sort's flags.
@@ -57,33 +57,79 @@ var spec = clix.Spec{
 // (including tests) must build its own.
 func flags() []urf.Flag {
 	return []urf.Flag{
-		&urf.BoolFlag{Name: flagReverse, Aliases: []string{"r"}, Usage: "reverse the result of comparisons"},
-		&urf.BoolFlag{Name: flagNumeric, Aliases: []string{"n"}, Usage: "compare according to string numerical value"},
+		&urf.BoolFlag{
+			Name:    flagReverse,
+			Aliases: []string{"r"},
+			Usage:   "reverse the result of comparisons",
+			Sources: urf.EnvVars("YUP_SORT_REVERSE"),
+		},
+		&urf.BoolFlag{
+			Name:    flagNumeric,
+			Aliases: []string{"n"},
+			Usage:   "compare according to string numerical value",
+			Sources: urf.EnvVars("YUP_SORT_NUMERIC_SORT"),
+		},
 		&urf.BoolFlag{
 			Name:    flagHumanNumeric,
 			Aliases: []string{"h"},
 			Usage:   "compare human readable numbers (e.g., 2K 1G)",
+			Sources: urf.EnvVars("YUP_SORT_HUMAN_NUMERIC_SORT"),
 		},
-		&urf.BoolFlag{Name: flagMonth, Aliases: []string{"M"}, Usage: "compare (unknown) < 'JAN' < ... < 'DEC'"},
+		&urf.BoolFlag{
+			Name:    flagMonth,
+			Aliases: []string{"M"},
+			Usage:   "compare (unknown) < 'JAN' < ... < 'DEC'",
+			Sources: urf.EnvVars("YUP_SORT_MONTH_SORT"),
+		},
 		&urf.BoolFlag{
 			Name:    flagVersion,
 			Aliases: []string{"V"},
 			Usage:   "natural sort of (version) numbers within text",
+			Sources: urf.EnvVars("YUP_SORT_VERSION_SORT"),
 		},
-		&urf.BoolFlag{Name: flagUnique, Aliases: []string{"u"}, Usage: "output only the first of an equal run"},
-		&urf.BoolFlag{Name: flagIgnoreCase, Aliases: []string{"f"}, Usage: "fold lower case to upper case characters"},
-		&urf.BoolFlag{Name: flagIgnoreLeadingBlanks, Aliases: []string{"b"}, Usage: "ignore leading blanks"},
-		&urf.BoolFlag{Name: flagRandom, Aliases: []string{"R"}, Usage: "shuffle, but group identical keys"},
+		&urf.BoolFlag{
+			Name:    flagUnique,
+			Aliases: []string{"u"},
+			Usage:   "output only the first of an equal run",
+			Sources: urf.EnvVars("YUP_SORT_UNIQUE"),
+		},
+		&urf.BoolFlag{
+			Name:    flagIgnoreCase,
+			Aliases: []string{"f"},
+			Usage:   "fold lower case to upper case characters",
+			Sources: urf.EnvVars("YUP_SORT_IGNORE_CASE"),
+		},
+		&urf.BoolFlag{
+			Name:    flagIgnoreLeadingBlanks,
+			Aliases: []string{"b"},
+			Usage:   "ignore leading blanks",
+			Sources: urf.EnvVars("YUP_SORT_IGNORE_LEADING_BLANKS"),
+		},
+		&urf.BoolFlag{
+			Name:    flagRandom,
+			Aliases: []string{"R"},
+			Usage:   "shuffle, but group identical keys",
+			Sources: urf.EnvVars("YUP_SORT_RANDOM_SORT"),
+		},
 		&urf.BoolFlag{
 			Name:    flagStableSort,
 			Aliases: []string{"s"},
 			Usage:   "stabilize sort by disabling last-resort comparison",
+			Sources: urf.EnvVars("YUP_SORT_STABLE"),
 		},
-		&urf.IntFlag{Name: flagField, Aliases: []string{"k"}, Usage: "sort via a key; KEYDEF gives location and type"},
+		&urf.IntFlag{
+			Name:    flagField,
+			Aliases: []string{"k"},
+			Usage:   "sort via a key; KEYDEF gives location and type",
+			Sources: urf.EnvVars("YUP_SORT_KEY"),
+			Value:   0,
+		},
 		&urf.StringFlag{
 			Name:    flagDelimiter,
 			Aliases: []string{"t"},
 			Usage:   "use SEP instead of non-blank to blank transition",
+			Sources: urf.EnvVars("YUP_SORT_FIELD_SEPARATOR"),
+			Value:   "",
 		},
 	}
 }
