@@ -40,7 +40,7 @@ With no FILE, or when FILE is -, read standard input.`
 // called explicitly from main (mirroring how the clix runner replaces
 // urf.VersionFlag at app construction) rather than hidden in an init.
 func configureHelp() {
-	urf.HelpFlag = &urf.BoolFlag{Name: flagHelp, Usage: "show help", Sources: urf.EnvVars("YUP_SORT_HELP")}
+	urf.HelpFlag = &urf.BoolFlag{Name: flagHelp, Usage: "show help"}
 }
 
 // spec declares the sort wrapper: a file-or-stdin filter with GNU sort's flags.
